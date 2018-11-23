@@ -17,11 +17,12 @@ function initializeRoutes() {
   })
 
   app.get('/factures', (req, res) => {
-    db.collection('factures').find()((err, result) => {
-      if (err) throw err
-      console.log(result)
+    db.collection('factures').find({}).toArray((err, factures) => {
+      assert.equal(err, null);
+      console.log("Liste des factures trouvees: \n")
+      console.log(factures)
+      res.send(factures)
     })
-    res.send(result);
   })
  
   app.post('/factures', (req, res) => {
