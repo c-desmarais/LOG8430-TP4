@@ -1,7 +1,7 @@
 
 let readline = require('readline')
 let request = require('request-promise')
-const baseUrl = 'http://127.0.0.1:8080'  
+const baseUrl = 'http://192.168.15.100:8008'  
 
 const rl = readline.createInterface({
   input: process.stdin,
@@ -119,9 +119,13 @@ function initClient() {
           initClient()
         })
     } else if (answer == '3') {
-      console.log('Liste des produits frequents:')
-      initClient()
-      // TODO : faire ca avec spark
+      console.log("Lancement sur la grappe. L'operation pourrait prendre un peu de temps.")
+      request(`${baseUrl}/frequentproducts`, (error, response, body) => {
+        if(error) throw error;
+        console.log('Liste des produits frequents:')
+        console.log(body);
+        initClient()
+      });
     } else if (answer == 'q') {
       console.log('Merci et au revoir.')
       rl.close();
