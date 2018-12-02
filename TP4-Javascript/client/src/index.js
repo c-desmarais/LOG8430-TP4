@@ -8,13 +8,68 @@ const rl = readline.createInterface({
   output: process.stdout
 })
 
+function ajoutNomItem() {
+  return new Promise((resolve, reject) => {
+    rl.question('Quel est le nom de l\'item : ', (name) => {
+      if (name.match(/^[a-z0-9]+$/)) {
+        return resolve(name)
+      } else {
+        return reject(new Error('Nom invalide: Veuillez vous assurer de fournir un nom tel que /^[a-z0-9]+$/)'))
+      }
+    })
+  })
+}
+
+function ajoutPrixItem(name) {
+  return new Promise((resolve, reject) => {
+    rl.question('Quel est le prix de l\'item:', (price) => {
+      if (price.match(/(\d+\.\d{1,2})/)) {
+        return resolve({name, price})
+      } else {
+        return reject(new Error('Prix invalide : Veuillez vous assurer de fournir un prix tel que /^(\d{1,3})?(,?\d{3})*(\.\d{2})?$)/'))
+      }
+    })
+  })
+}
+
+function continuerAjout(namePrice) {
+  return new Promise((resolve, reject) => {
+    rl.question('Voulez-vous continuer a ajouter des items (o pour oui, n pour non):', (continueAdding) => {
+      if (continueAdding == 'o' || continueAdding == 'n') {
+        return resolve([continueAdding, namePrice])
+      } else {
+        return reject(new Error('Continuer Ajout Invalide : Veuillez vous assurer de fournir o (pour oui) ou n (pour non)'))
+      }
+    })
+  })
+}
+
 // Prend ce quil y a dans la console, fait un objet facture avec.
-function creerFacture() {
-  console.log('Ajout d\'une facture:')
-  const messageAjoutItem = 'Veuillez copier le json representant les items a ajouter et leur prix \n' + 
-  'Exemple : \{"shampoing": "2.22", "dentifrice": "3.33"}\ \n' 
-  //TODO : il ny a aucune validation faite ici, on assume que tout est beau. Faudrait peut etre en ajouter une.
-  return new Promise(resolve => rl.question(messageAjoutItem, answer => resolve(answer)))
+function creerFacture(factureArray) {
+
+  return ajoutNomItem()
+  .then(name => ajoutPrixItem(name))
+  .then(namePrice => continuerAjout(namePrice))
+  .then(response => {
+    const itemToAdd = {
+      name: response[1].name,
+      price: response[1].price
+    }
+
+    factureArray.push(itemToAdd)
+
+    if (response[0] == 'o') {
+      return creerFacture(factureArray)
+    } else {
+      return new Promise(resolve => resolve({items: factureArray}))
+    }
+  })
+  .catch(error => {
+    console.log('Lerreur suivante est survenue pendant lajout de litem et il na pas ete ajoute: ')
+    console.log(error.message)
+    console.log('Veuillez reinserer votre item correctement.')
+    return creerFacture(factureArray)
+  })
 }
 
 // Envoie un objet facture (via le body) sur la route POST /factures
@@ -22,7 +77,7 @@ function ajouterFacture(facture) {
   const options = {
     method: 'POST',
     uri: `${baseUrl}/factures`,
-    body: JSON.parse(facture),
+    body: facture,
     json: true
   }
 
@@ -48,20 +103,20 @@ function initClient() {
       })
     } else if (answer == '2') {
       // recuperer les items a ajouter dans la console
-      creerFacture()
-        .then(result => ajouterFacture(result))
+      let factureArray = []
+      creerFacture(factureArray)
+        .then(result => {
+          console.log('Facture cree:')
+          console.log(result)
+          return ajouterFacture(result)
+        })
         .then(response => {
           console.log(response)
           initClient()
         })
         .catch(err => {
-          if (err instanceof SyntaxError) {
-            console.log("Veuillez fournir un JSON valide lorsque vous ajouter une facture svp.")
-            initClient()
-          } else {
-            console.log(err)
-            //TODO : gerer les autres types derreurs
-          }
+          console.log(err.message)
+          initClient()
         })
     } else if (answer == '3') {
       console.log('Liste des produits frequents:')
