@@ -7,6 +7,9 @@
 - **confSlave2**: deuxième esclave Spark
 - **confMaster**: master Spark
 
+## Diagramme d'architecture
+![alt text](https://raw.githubusercontent.com/c-desmarais/LOG8430-TP4/master/diagrammeArchitecture.png)
+
 
 ## Étape 1 : Installations machines virtuelles (environnement virtual box)
 
