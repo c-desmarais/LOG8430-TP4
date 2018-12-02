@@ -12,6 +12,7 @@
   "dependencies": {
     "assert": "^1.4.1",
     "body-parser": "^1.18.3",
+    "child_process": "^1.0.2",
     "express": "^4.16.4",
     "mongodb": "^3.1.10"
   }

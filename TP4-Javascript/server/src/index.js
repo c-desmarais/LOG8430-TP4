@@ -13,7 +13,14 @@ function initializeRoutes() {
   })
  
   app.get('/frequentproducts', (req, res) => {
-    res.send('Hello you are here to get the frequent products');
+    const { exec } = require('child_process');
+    exec('/usr/local/spark/bin/spark-submit --master spark://192.168.15.100:7077 --packages org.mongodb.spark:mongo-spark-connector_2.11:2.3.1 ~/test.py', (err, stdout, stderr) => {
+      if(err) {
+	res.send('An Error has occured');
+        return;
+      }
+    res.send(stdout)
+  });
   })
 
   app.get('/factures', (req, res) => {
@@ -59,4 +66,4 @@ function initializeService(servicePort) {
   })
 }
 
-initializeService(8080)
+initializeService(8008)
