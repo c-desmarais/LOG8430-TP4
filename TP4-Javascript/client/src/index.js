@@ -88,7 +88,7 @@ function initClient() {
   const messageInitial = 'Options disponibles: \n' +
     '1 - Consulter la liste des factures \n' +
     '2 - Ajouter une facture. \n' +
-    '3 - Consulter la liste des produits frequents (currently unavailable) \n' +
+    '3 - Consulter la liste des produits frequents \n' +
     'q - tapper la lettre q et Entree si vous desirez quitter \n'
 
   rl.question(messageInitial, answer => {
